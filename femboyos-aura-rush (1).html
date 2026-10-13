@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#130e27" />
+  <title>FemboyOS: Aura Rush — Play Now</title>
+  <style>
+    :root { color-scheme: dark; --pink:#ff70ca; --lav:#bb91ff; --mint:#8ef8db; --white:#fff6ff; --dim:#bdb1d6; --edge:rgba(239,194,255,.22); }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; }
+    body { font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--white); background: radial-gradient(ellipse 90% 65% at 50% -10%, #402165 0%, transparent 74%), #130e27; overflow-x:hidden; }
+    body::before { content:"";position:fixed;inset:0;pointer-events:none;opacity:.24;background-image:radial-gradient(#ffffffaf 1px,transparent 1.4px);background-size:33px 33px;mask-image:linear-gradient(#000, transparent 92%); }
+    .shell { max-width:1100px; margin:auto; padding:25px 20px 26px; }
+    header { display:flex; align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px; }
+    .logo { font-weight:1000;font-size:16px;letter-spacing:2px;display:flex;align-items:center;gap:11px; }
+    .logo b { display:grid;place-items:center;width:34px;height:34px;background:linear-gradient(140deg,#ff8dd8,#b882ff);border-radius:12px;color:#331844;box-shadow:0 0 20px #ff75d15e;font-size:22px; }
+    .tiny-pill { font-size:11px;font-weight:900;letter-spacing:1.6px;color:#ead4ff;border:1px solid var(--edge);border-radius:30px;padding:8px 12px; background:#ffffff0b; }
+    .heading { display:flex;justify-content:space-between;align-items:end;gap:18px;flex-wrap:wrap;margin-bottom:16px; }
+    .eyebrow { color:var(--mint);letter-spacing:2.7px;font-size:11px;font-weight:950;margin:0 0 5px; }
+    h1 { margin:0;line-height:1.04;font-size:clamp(38px,6vw,70px);font-weight:1000;letter-spacing:-2.6px; }
+    h1 em { font-style:normal;color:var(--pink);text-shadow:0 0 32px #ff68ca66; }
+    .heading p:last-child { font-size:13px;line-height:1.5;max-width:290px;color:var(--dim);margin:0 0 4px; }
+    .panel { padding:13px;background:linear-gradient(145deg,#ffffff1a,#ffffff07);border:1px solid var(--edge);border-radius:23px;box-shadow:0 23px 70px #0804128a,inset 0 1px #ffffff2c; }
+    .hud { display:grid;grid-template-columns:minmax(128px,1.2fr) minmax(100px,.75fr) minmax(110px,.75fr) minmax(128px,1.2fr);gap:9px;margin-bottom:11px; }
+    .stat { min-width:0;background:#130d28bd;border:1px solid #ffffff13;border-radius:13px;padding:11px 15px 10px; }
+    .stat .name { font-size:10px;color:#ab9dbf;font-weight:850;letter-spacing:1.5px; }
+    .stat .value { font-size:22px;font-weight:1000;letter-spacing:.3px;line-height:1.3;font-variant-numeric:tabular-nums; }
+    .stat .value small { font-size:13px;color:#b4a6c6; }
+    .stat .value.hot { color:#ff9bdc; }
+    .stat .value.mint { color:var(--mint); }
+    .stat .meter { height:5px;background:#3f3154;border-radius:20px;margin-top:6px;overflow:hidden; }
+    .stat .meter i { display:block;width:0;height:100%;background:linear-gradient(90deg,#f66cc2,#fdcf76);border-radius:20px;transition:width .15s; }
+    .stat .meter.power i { background:linear-gradient(90deg,#8ed9fa,#ab80ff); }
+    .arena { position:relative;border:1px solid #ffffff21;border-radius:14px;overflow:hidden;background:#1a1333;isolation:isolate; }
+    canvas { display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:none;cursor:crosshair; }
+    .overlay { position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;padding:16px;background:linear-gradient(#110c26a8,#110c26dc);backdrop-filter:blur(6px); }
+    .overlay[hidden] { display:none; }
+    .modal { text-align:center;max-width:480px;width:100%; }
+    .modal .cat { width:91px;height:91px;margin:0 auto 12px;border-radius:26px;display:grid;place-items:center;font-size:50px;transform:rotate(-7deg);background:linear-gradient(145deg,#ff8fda,#c29cff);box-shadow:0 0 60px #ff69c888; }
+    .modal .tag { display:inline-block;padding:5px 12px;border:1px solid #be9cff83;color:#e4cbff;border-radius:100px;font-size:10px;letter-spacing:2px;font-weight:1000;margin-bottom:12px; }
+    .modal h2 { font-size:clamp(28px,4.3vw,51px);line-height:1.05;margin:0 0 12px;letter-spacing:-1.3px; }
+    .modal h2 span { color:var(--pink); }
+    .modal p { font-size:15px;line-height:1.55;color:#dbcee9;max-width:410px;margin:0 auto 19px; }
+    button { font-family:inherit;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent; }
+    .primary { display:inline-flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(105deg,#ff77d1,#c391ff);border:0;color:#261336;border-radius:13px;font-size:16px;font-weight:1000;padding:15px 31px;box-shadow:0 7px 0 #8e438d,0 16px 27px #fa6dc354;transition:transform .12s,box-shadow .12s; }
+    .primary:hover { transform:translateY(-2px);box-shadow:0 9px 0 #8e438d,0 20px 30px #fa6dc354; }
+    .primary:active { transform:translateY(5px);box-shadow:0 2px 0 #8e438d; }
+    .modal .sub { margin-top:19px;font-size:11px;color:#ad9dc1;letter-spacing:.3px; }
+    .controls { display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap; }
+    .control-note { color:#b7a8c9;font-size:12px;line-height:1.6; }
+    kbd { background:#372b4f;color:#fbe7ff;border:1px solid #6a4b83;border-bottom-width:3px;border-radius:6px;padding:3px 6px;font-size:11px;font-weight:900; }
+    .right-controls { display:flex;gap:8px; }
+    .secondary { color:#e8d9f5;border:1px solid #785f92;background:#ffffff10;border-radius:10px;padding:10px 13px;font-weight:900;font-size:12px; }
+    .secondary:hover { background:#ffffff21; }
+    #blastButton { border-color:#af76fa;color:#e4c8ff; }
+    #blastButton.ready { animation:pulse 1s infinite alternate;background:#a76fff35;border-color:#c9afff; }
+    @keyframes pulse { to { box-shadow:0 0 18px #b282ff88; } }
+    .legend { display:flex;justify-content:center;gap:20px;flex-wrap:wrap;padding:18px 0 0;font-size:12px;font-weight:800;color:#d3c4e3; }
+    .legend span { display:flex;align-items:center;gap:7px; }
+    .marker { width:11px;height:11px;display:inline-block;transform:rotate(45deg);border-radius:3px; }
+    .mobile-pad { display:none;justify-content:space-between;gap:10px;padding-top:13px; }
+    .mobile-pad button { flex:1;touch-action:none;border:1px solid #ffffff44;background:#ffffff18;border-radius:13px;color:white;padding:15px 10px;font-weight:1000;font-size:20px; }
+    .mobile-pad button:last-child { flex:1.5;background:#b879ff3c;border-color:#caa6ff; }
+    .credits { text-align:center;color:#897d9f;font-size:11px;letter-spacing:.3px;margin-top:17px; }
+    @media(max-width:680px) { .shell{padding:13px 10px 20px}.heading{margin-bottom:13px}.heading p:last-child{display:none}.panel{padding:7px;border-radius:16px}.hud{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-bottom:7px}.stat{padding:8px 5px;text-align:center;border-radius:8px}.stat .name{font-size:8px;letter-spacing:.5px}.stat .value{font-size:15px}.stat .value small{font-size:9px}.stat .meter{margin-top:4px}.controls{padding:0 4px}.control-note{font-size:10px;max-width:60%}.secondary{padding:8px;font-size:11px}.mobile-pad{display:flex}.modal .cat{width:64px;height:64px;font-size:39px;border-radius:17px;margin-bottom:8px}.modal .tag{margin-bottom:8px;font-size:9px}.modal h2{font-size:clamp(23px,7vw,37px);margin-bottom:8px}.modal p{font-size:12px;line-height:1.4;margin-bottom:12px}.modal .sub{margin-top:10px;font-size:9px}.primary{padding:12px 21px;font-size:14px}.legend{gap:13px;font-size:10px;padding-top:14px}.arena{border-radius:10px} }
+    @media(max-width:410px) { .modal p{font-size:11px}.modal .cat{display:none}.modal .sub{display:none}.modal h2{font-size:25px} }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="logo"><b>✦</b> FEMBOYOS <span style="color:#ab92bc">/ ARCADE</span></div>
+      <div class="tiny-pill">✳ 100% UNOFFICIAL MEME GAME</div>
+    </header>
+    <div class="heading">
+      <div>
+        <p class="eyebrow">♡ THE CUTENESS PROTOCOL HAS BEGUN</p>
+        <h1>AURA <em>RUSH!</em></h1>
+      </div>
+      <p>Catch cute stuff. Dodge the cringe. Charge your ultimate. Become a legend.</p>
+    </div>
+    <main class="panel">
+      <div class="hud" aria-label="Game status">
+        <div class="stat"><div class="name">AURA POINTS</div><div class="value hot" id="score">0 <small>/ 150</small></div><div class="meter"><i id="progress" style="width:0%"></i></div></div>
+        <div class="stat"><div class="name">HEARTS</div><div class="value" id="lives">♥ ♥ ♥</div></div>
+        <div class="stat"><div class="name">BEST SCORE</div><div class="value mint" id="best">0</div></div>
+        <div class="stat"><div class="name">BLUSH BLAST</div><div class="value" id="charge">0%</div><div class="meter power"><i id="chargebar" style="width:0%"></i></div></div>
+      </div>
+      <div class="arena" id="arena">
+        <canvas id="game" width="960" height="540" aria-label="A falling-object arcade game. Move left and right, collect pink stars and bows, and dodge glitch blocks."></canvas>
+        <div class="overlay" id="overlay">
+          <div class="modal">
+            <div class="cat">🐱</div>
+            <div class="tag" id="overlayTag">WELCOME TO THE ACADEMY</div>
+            <h2 id="overlayTitle">BECOME THE <span>AURA LEGEND</span></h2>
+            <p id="overlayText">Collect stars ⭐ and bows 🎀 to reach 150 aura. Avoid the red glitch blocks! Grab shields, charge your BLUSH BLAST, and win.</p>
+            <button class="primary" id="playButton">LET'S GO ✦</button>
+            <div class="sub">MOVE: ← → or A / D · BLAST: SPACE · PAUSE: P · TOUCH SUPPORTED</div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="control-note">MOVE <kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> &nbsp; · &nbsp; BLAST <kbd>SPACE</kbd> &nbsp; · &nbsp; PAUSE <kbd>P</kbd></div>
+        <div class="right-controls">
+          <button class="secondary" id="muteButton" title="Toggle sound">♪ SOUND ON</button>
+          <button class="secondary" id="pauseButton">Ⅱ PAUSE</button>
+          <button class="secondary" id="blastButton">✧ BLAST 0%</button>
+        </div>
+      </div>
+      <div class="mobile-pad" aria-label="Touch controls">
+        <button id="leftButton" aria-label="Move left">◀</button>
+        <button id="rightButton" aria-label="Move right">▶</button>
+        <button id="mobileBlast" aria-label="Blush blast">✦ BLAST</button>
+      </div>
+      <div class="legend">
+        <span><i class="marker" style="background:#ffd782"></i> STARS +10</span>
+        <span><i class="marker" style="background:#ff8ada"></i> BOWS +25</span>
+        <span><i class="marker" style="background:#8af8e4"></i> SHIELDS</span>
+        <span><i class="marker" style="background:#ff6077"></i> GLITCH = OUCH</span>
+      </div>
+    </main>
+    <div class="credits">MADE FOR LAUGHS · NO ACTUAL TRANSFORMATIONS WERE PERFORMED · V1.0</div>
+  </div>
+<script>
+(() => {
+  "use strict";
+  const W = 960, H = 540, TARGET = 150, MAX_LIVES = 3;
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const $ = id => document.getElementById(id);
+  const overlay = $('overlay');
+  const keys = { left: false, right: false };
+  const pointer = { active: false, x: W / 2 };
+  const player = { x: W / 2, y: 447, r: 28, invincible: 0, shield: 0, blink: 0 };
+  const state = { mode: 'menu', score: 0, best: 0, lives: MAX_LIVES, charge: 0, combo: 0, time: 0, spawn: 0, objects: [], particles: [], popups: [], flash: 0, shake: 0, blastWave: 0, muted: false };
+  const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
+  const rand = (a,b) => a + Math.random()*(b-a);
+  const TAU = Math.PI*2;
+  let audio = null, lastFrame = 0;
+
+  try { state.best = Number(localStorage.getItem('femboyos_aura_best')) || 0; } catch (_) { /* private mode */ }
+  function bestSave() {
+    if (state.score > state.best) {
+      state.best = state.score;
+      try { localStorage.setItem('femboyos_aura_best', String(state.best)); } catch (_) {}
+    }
+  }
+  function sound(freq = 480, dur = .085, type = 'sine', vol = .06, end = null) {
+    if (state.muted) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      audio ||= new AC();
+      if (audio.state === 'suspended') audio.resume().catch(() => {});
+      const osc = audio.createOscillator(), gain = audio.createGain();
+      const start = audio.currentTime;
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      if (end) osc.frequency.exponentialRampToValueAtTime(Math.max(1,end), start+dur);
+      gain.gain.setValueAtTime(vol, start);
+      gain.gain.exponentialRampToValueAtTime(.0001,start+dur);
+      osc.connect(gain);gain.connect(audio.destination);
+      osc.start(start);osc.stop(start+dur+.01);
+    } catch (_) {}
+  }
+  function refreshHUD() {
+    $('score').innerHTML = `${state.score} <small>/ ${TARGET}</small>`;
+    $('progress').style.width = `${clamp(100*state.score/TARGET,0,100)}%`;
+    $('lives').textContent = '♥ '.repeat(state.lives).trim() || '♡';
+    $('best').textContent = state.best;
+    $('charge').textContent = Math.round(state.charge) + '%';
+    $('chargebar').style.width = state.charge + '%';
+    $('blastButton').textContent = state.charge >= 100 ? '✧ BLAST READY!' : `✧ BLAST ${Math.round(state.charge)}%`;
+    $('blastButton').classList.toggle('ready',state.charge >= 100);
+  }
+  function showOverlay(tag,title,text,button) {
+    $('overlayTag').textContent = tag;
+    $('overlayTitle').innerHTML = title;
+    $('overlayText').textContent = text;
+    $('playButton').textContent = button;
+    overlay.hidden = false;
+  }
+  function reset() {
+    Object.assign(state,{ mode:'playing',score:0,lives:MAX_LIVES,charge:0,combo:0,time:0,spawn:.5,objects:[],particles:[],popups:[],flash:0,shake:0,blastWave:0 });
+    Object.assign(player,{ x:W/2,invincible:1.2,shield:0,blink:0 });
+    pointer.active = false; keys.left = keys.right = false;
+    overlay.hidden = true;
+    $('pauseButton').textContent = 'Ⅱ PAUSE';
+    refreshHUD();
+    sound(470,.1,'triangle',.09,760);
+  }
+  function endGame(won) {
+    state.mode = won ? 'won' : 'lost';
+    bestSave();refreshHUD();
+    if (won) {
+      for (let i=0;i<120;i++) burst(rand(20,W-20),rand(20,H-100),'#ffce79',1);
+      showOverlay('MISSION COMPLETE','LEGENDARY <span>AURA UNLOCKED!</span>',`You scored ${state.score} aura. FemboyOS has officially declared you too powerful for this server. 🎀`,'PLAY AGAIN ↻');
+      sound(580,.21,'triangle',.1,1050);setTimeout(() => sound(850,.18,'triangle',.075,1280),130);
+    } else {
+      showOverlay('SYSTEM ERROR 💀','CRINGE <span>OVERLOAD!</span>',`You collected ${state.score} aura before the glitches caught you. Best score: ${state.best}. Ready for a rematch?`,'TRY AGAIN ↻');
+      sound(300,.35,'sawtooth',.045,115);
+    }
+  }
+  function togglePause() {
+    if (state.mode === 'playing') {
+      state.mode = 'paused';
+      showOverlay('BREAK TIME','GAME <span>PAUSED</span>','Your aura is safe. Take a moment and jump straight back in.','RESUME GAME ▶');
+      $('pauseButton').textContent = '▶ RESUME';
+    } else if (state.mode === 'paused') {
+      state.mode = 'playing';overlay.hidden = true;
+      $('pauseButton').textContent = 'Ⅱ PAUSE';
+    }
+  }
+  function startOrResume() { if (state.mode === 'paused') togglePause(); else reset(); }
+  function addPopup(x,y,text,color='#fff') {state.popups.push({x,y,text,color,age:0});}
+  function burst(x,y,color,n=16) {
+    for(let i=0;i<n;i++){
+      const a = rand(0,TAU),speed=rand(45,230);
+      state.particles.push({x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:rand(.3,.8),max:.8,size:rand(2,6),color});
+    }
+  }
+  function spawn() {
+    const r = Math.random();
+    let type;
+    if(r<.55) type='star'; else if(r<.7) type='bow'; else if(r<.90) type='glitch'; else if(r<.965) type='shield'; else type='heart';
+    const level = 1 + Math.floor(state.score/50);
+    let x = rand(43,W-43);
+    // Avoid impossible clusters while retaining randomness.
+    const nearby = state.objects.filter(o => o.y < 65);
+    for (let attempt=0;attempt<8 && nearby.some(o => Math.abs(o.x-x)<65);attempt++) x=rand(43,W-43);
+    state.objects.push({type,x,y:-38,r:type==='glitch'?25:22,speed:rand(170,235)+level*24,rot:rand(-.3,.3),spin:rand(-2,2),age:0});
+  }
+  function collect(o) {
+    if(o.type==='glitch') {
+      if(player.shield>0 || player.invincible>0) {
+        burst(o.x,o.y,'#8ff6e4',11);
+        sound(250,.07,'sine',.045,650);
+      } else {
+        state.lives--;
+        state.combo=0;
+        player.invincible=1.3;state.flash=.48;state.shake=15;
+        addPopup(player.x,player.y-55,'OUCH! -1 ♥','#ff829d');
+        burst(o.x,o.y,'#ff6489',28);
+        sound(200,.25,'sawtooth',.07,70);
+        if(state.lives<=0) {endGame(false);return;}
+      }
+    } else if(o.type==='shield') {
+      player.shield=5.5;state.charge=clamp(state.charge+10,0,100);
+      addPopup(o.x,o.y,'SHIELD!','#8afee9');burst(o.x,o.y,'#8afee9');
+      sound(680,.22,'sine',.06,1070);
+    } else if(o.type==='heart') {
+      state.lives=clamp(state.lives+1,0,MAX_LIVES);
+      addPopup(o.x,o.y,'+1 ♥','#ff8fba');burst(o.x,o.y,'#ff8fba');
+      sound(610,.17,'sine',.055,880);
+    } else {
+      const amount = o.type==='bow'?25:10;
+      state.score+=amount;
+      state.combo++;
+      state.charge=clamp(state.charge+(o.type==='bow'?30:17),0,100);
+      addPopup(o.x,o.y-8,`+${amount} AURA`,'#ffe19c');
+      if(state.combo>0 && state.combo%5===0) addPopup(o.x,o.y-39,`${state.combo} COMBO!`,'#ff9ef6');
+      burst(o.x,o.y,o.type==='bow'?'#ff9de7':'#ffe4a2',17);
+      sound(o.type==='bow'?820:630,.12,'triangle',.065,o.type==='bow'?1130:880);
+      bestSave();
+      if(state.score>=TARGET) {endGame(true);return;}
+    }
+    refreshHUD();
+  }
+  function blast() {
+    if(state.mode!=='playing'||state.charge<100) return;
+    state.charge=0;state.blastWave=1;state.flash=.24;state.shake=9;
+    player.shield=Math.max(player.shield,1.8);
+    let cleared=0;
+    state.objects=state.objects.filter(o=>{
+      if(o.type==='glitch') {burst(o.x,o.y,'#bb9aff',26);cleared++;return false;}
+      return true;
+    });
+    if(cleared) {
+      state.score+=cleared*5;
+      addPopup(player.x,player.y-100,`BLAST! +${cleared*5}`,'#dabaff');
+      bestSave();
+    } else addPopup(player.x,player.y-100,'BLUSH BLAST!','#dabaff');
+    sound(250,.42,'sawtooth',.07,1000);
+    if(state.score>=TARGET) endGame(true);
+    refreshHUD();
+  }
+  function update(dt) {
+    state.time+=dt;
+    player.shield=Math.max(0,player.shield-dt);
+    player.invincible=Math.max(0,player.invincible-dt);
+    state.flash=Math.max(0,state.flash-dt);
+    state.shake=Math.max(0,state.shake-dt*39);
+    state.blastWave=Math.max(0,state.blastWave-dt*1.35);
+    const speed=480;
+    if(pointer.active) player.x += clamp(pointer.x-player.x,-speed*dt,speed*dt);
+    else player.x += ((keys.right?1:0)-(keys.left?1:0))*speed*dt;
+    player.x=clamp(player.x,33,W-33);
+    state.spawn-=dt;
+    if(state.spawn<=0){spawn();const level=1+Math.floor(state.score/50);state.spawn=rand(.52,.95)/Math.min(1.45,1+level*.08);}
+    for(let i=state.objects.length-1;i>=0;i--){
+      const o=state.objects[i];o.y+=o.speed*dt;o.rot+=o.spin*dt;o.age+=dt;
+      if(Math.hypot(o.x-player.x,o.y-(player.y-5))<o.r+player.r-3){
+        state.objects.splice(i,1);collect(o);
+        if(state.mode!=='playing')break;
+      } else if(o.y>H+42){state.objects.splice(i,1);if(o.type==='star'||o.type==='bow') state.combo=0;}
+    }
+    updateEffects(dt);
+  }
+  function updateEffects(dt){
+    for(let i=state.particles.length-1;i>=0;i--){const p=state.particles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=180*dt;p.life-=dt;if(p.life<=0)state.particles.splice(i,1);}
+    for(let i=state.popups.length-1;i>=0;i--){const p=state.popups[i];p.y-=38*dt;p.age+=dt;if(p.age>1.0)state.popups.splice(i,1);}
+  }
+  function roundRect(x,y,w,h,r,fill){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();}
+  function starShape(x,y,r,points=5,inside=.48){ctx.beginPath();for(let i=0;i<points*2;i++){let a=i*Math.PI/points-Math.PI/2;let radius=i%2?r*inside:r;let xx=x+Math.cos(a)*radius, yy=y+Math.sin(a)*radius;if(i===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy);}ctx.closePath();}
+  function bg(t){
+    const grad=ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'#261b4d');grad.addColorStop(.65,'#372452');grad.addColorStop(1,'#432957');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+    // Ambient light beams and planets.
+    let g=ctx.createRadialGradient(490,220,30,490,220,410);g.addColorStop(0,'#fa68cd19');g.addColorStop(1,'#fa68cd00');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#d7c2ff17';ctx.beginPath();ctx.arc(810,105,75,0,TAU);ctx.fill();
+    ctx.strokeStyle='#ffb3e51b';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(810,105,119,30,-.28,0,TAU);ctx.stroke();
+    for(let i=0;i<72;i++){
+      const x=(i*173.83+47)%W,y=(i*101.37+13)%430;
+      const a=.2+.5*(.5+.5*Math.sin(t*1.5+i*3.16));
+      ctx.globalAlpha=a;ctx.fillStyle=i%3===0?'#ffbce9':'#e6ddff';ctx.beginPath();ctx.arc(x,y,i%6===0?2:1,0,TAU);ctx.fill();
+    }ctx.globalAlpha=1;
+    // Floating buildings silhouette.
+    ctx.fillStyle='#25183d80';
+    for(let i=0;i<16;i++){
+      let x=i*73-15,h=55+((i*53)%68);
+      ctx.fillRect(x,462-h,58,h);
+      ctx.fillStyle='#b97fe41c';for(let k=0;k<4;k++)ctx.fillRect(x+10+(k%2)*24,465-h+12+Math.floor(k/2)*24,6,8);
+      ctx.fillStyle='#25183d80';
+    }
+    ctx.fillStyle='#241934';ctx.fillRect(0,472,W,68);
+    ctx.fillStyle='#ff88d88a';ctx.fillRect(0,469,W,3);
+    ctx.fillStyle='#e99cff18';for(let i=0;i<24;i++)ctx.fillRect(i*44-(t*24%44),494,20,2);
+    // Ambient floating heart accents.
+    for(let i=0;i<8;i++){
+      const x=45+i*127+Math.sin(t*.6+i)*14,y=55+((i*72)%290)+Math.sin(t+i)*11;
+      ctx.globalAlpha=.12;ctx.fillStyle='#ffd2f1';ctx.font='24px sans-serif';ctx.fillText('♥',x,y);
+    }ctx.globalAlpha=1;
+  }
+  function drawPlayer(t){
+    const x=player.x,y=player.y+Math.sin(t*6)*2;
+    if(player.invincible>0&&Math.floor(t*13)%2===0&&player.shield<=0)ctx.globalAlpha=.55;
+    ctx.save();ctx.translate(x,y);
+    // Shadow.
+    ctx.fillStyle='#100a27a8';ctx.beginPath();ctx.ellipse(0,28,35,9,0,0,TAU);ctx.fill();
+    // Hoodie/body.
+    ctx.fillStyle='#d99afd';ctx.beginPath();ctx.ellipse(0,11,29,31,0,0,TAU);ctx.fill();
+    ctx.fillStyle='#a46deb';ctx.beginPath();ctx.ellipse(0,24,19,6,0,0,TAU);ctx.fill();
+    // Cat ears.
+    ctx.fillStyle='#ffdbf2';ctx.beginPath();ctx.moveTo(-24,-23);ctx.lineTo(-29,-53);ctx.lineTo(-4,-39);ctx.moveTo(24,-23);ctx.lineTo(29,-53);ctx.lineTo(4,-39);ctx.fill();
+    ctx.fillStyle='#ff8dc6';ctx.beginPath();ctx.moveTo(-22,-34);ctx.lineTo(-25,-47);ctx.lineTo(-12,-39);ctx.moveTo(22,-34);ctx.lineTo(25,-47);ctx.lineTo(12,-39);ctx.fill();
+    // Head.
+    ctx.fillStyle='#ffe4ed';ctx.beginPath();ctx.ellipse(0,-17,28,26,0,0,TAU);ctx.fill();
+    ctx.fillStyle='#5c365f';ctx.beginPath();ctx.ellipse(-9,-20,3.7,5.3,0,0,TAU);ctx.ellipse(9,-20,3.7,5.3,0,0,TAU);ctx.fill();
+    ctx.fillStyle='#fa9cb6';ctx.beginPath();ctx.ellipse(-17,-11,6,3,0,0,TAU);ctx.ellipse(17,-11,6,3,0,0,TAU);ctx.fill();
+    ctx.strokeStyle='#a65e86';ctx.lineWidth=2.3;ctx.beginPath();ctx.arc(0,-12,5,.2,Math.PI-.2);ctx.stroke();
+    ctx.fillStyle='#fffbfa';ctx.beginPath();ctx.arc(-10,-23,1.3,0,TAU);ctx.arc(8,-23,1.3,0,TAU);ctx.fill();
+    // Hoodie drawstring.
+    ctx.strokeStyle='#fff4ff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-5,7);ctx.lineTo(-4,19);ctx.moveTo(5,7);ctx.lineTo(4,19);ctx.stroke();
+    if(player.shield>0){ctx.strokeStyle='#8af9e4';ctx.lineWidth=4;ctx.shadowColor='#83ffec';ctx.shadowBlur=27;ctx.beginPath();ctx.arc(0,-12,47+Math.sin(t*9)*2,0,TAU);ctx.stroke();ctx.shadowBlur=0;}
+    ctx.restore();ctx.globalAlpha=1;
+  }
+  function drawObject(o,t){
+    ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot);ctx.shadowBlur=22;
+    if(o.type==='star'){
+      ctx.shadowColor='#ffcf70';starShape(0,0,23);ctx.fillStyle='#ffde8b';ctx.fill();ctx.strokeStyle='#fff5bb';ctx.lineWidth=3;ctx.stroke();
+      ctx.shadowBlur=0;ctx.fillStyle='#a06c3d';ctx.beginPath();ctx.arc(-6,-2,2.2,0,TAU);ctx.arc(6,-2,2.2,0,TAU);ctx.fill();
+    } else if(o.type==='bow'){
+      ctx.shadowColor='#ff66d7';ctx.fillStyle='#ff92e6';ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(-35,-26,-37,-4,-23,9);ctx.lineTo(0,0);ctx.bezierCurveTo(35,-26,37,-4,23,9);ctx.closePath();ctx.fill();
+      roundRect(-7,-7,14,14,5,'#ffd3f5');ctx.shadowBlur=0;
+    } else if(o.type==='glitch'){
+      ctx.shadowColor='#ff4a84';roundRect(-21,-21,42,42,7,'#f65a80');ctx.shadowBlur=0;
+      ctx.strokeStyle='#621c4b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-10,-10);ctx.lineTo(10,10);ctx.moveTo(10,-10);ctx.lineTo(-10,10);ctx.stroke();
+      ctx.fillStyle='#ffb4d2';ctx.fillRect(-28,-14,8,4);ctx.fillRect(20,8,9,4);
+    } else if(o.type==='shield'){
+      ctx.shadowColor='#8afde2';ctx.fillStyle='#8df6df';ctx.beginPath();ctx.moveTo(0,-25);ctx.lineTo(21,-13);ctx.lineTo(18,8);ctx.quadraticCurveTo(0,31,0,30);ctx.quadraticCurveTo(-20,15,-21,-13);ctx.closePath();ctx.fill();
+      ctx.shadowBlur=0;ctx.fillStyle='#2b5b65';ctx.font='bold 26px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✧',0,1);
+    } else if(o.type==='heart'){
+      ctx.shadowColor='#ff80ac';ctx.font='bold 46px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#ff7eae';ctx.fillText('♥',0,0);
+    }
+    ctx.restore();
+  }
+  function render(ts){
+    const t=ts/1000;
+    ctx.save();ctx.clearRect(0,0,W,H);
+    if(state.shake>0)ctx.translate(rand(-state.shake,state.shake),rand(-state.shake,state.shake));
+    bg(t);
+    state.objects.forEach(o=>drawObject(o,t));
+    drawPlayer(t);
+    state.particles.forEach(p=>{ctx.globalAlpha=clamp(p.life/p.max,0,1);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);});ctx.globalAlpha=1;
+    state.popups.forEach(p=>{ctx.globalAlpha=clamp(1-p.age,0,1);ctx.font='900 19px system-ui';ctx.textAlign='center';ctx.lineWidth=4;ctx.strokeStyle='#34203d';ctx.strokeText(p.text,p.x,p.y);ctx.fillStyle=p.color;ctx.fillText(p.text,p.x,p.y);});ctx.globalAlpha=1;
+    if(state.blastWave>0){const radius=(1-state.blastWave)*900;ctx.strokeStyle=`rgba(204,162,255,${state.blastWave})`;ctx.lineWidth=12*state.blastWave+3;ctx.beginPath();ctx.arc(player.x,player.y,radius,0,TAU);ctx.stroke();}
+    if(state.flash>0){ctx.fillStyle=`rgba(255,110,170,${state.flash*.38})`;ctx.fillRect(0,0,W,H);}
+    ctx.restore();
+  }
+  function frame(ts){
+    if(!lastFrame)lastFrame=ts;
+    const dt=Math.min((ts-lastFrame)/1000,.035);lastFrame=ts;
+    if(state.mode==='playing')update(dt);
+    else updateEffects(dt);
+    render(ts);
+    requestAnimationFrame(frame);
+  }
+  function resize(){
+    const pixelRatio=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=Math.round(W*pixelRatio);canvas.height=Math.round(H*pixelRatio);
+    ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
+  }
+  window.addEventListener('resize',resize);resize();
+  window.addEventListener('keydown',e=>{
+    const key=e.key.toLowerCase();
+    if(['arrowleft','arrowright',' ','arrowup'].includes(key))e.preventDefault();
+    if(key==='arrowleft'||key==='a'){keys.left=true;pointer.active=false;}
+    if(key==='arrowright'||key==='d'){keys.right=true;pointer.active=false;}
+    if(key==='p'&&!e.repeat)togglePause();
+    if(key===' '&&!e.repeat){ if(state.mode==='playing')blast();else if(state.mode==='menu'||state.mode==='won'||state.mode==='lost')startOrResume();else if(state.mode==='paused')togglePause();}
+    if(key==='enter'&&!e.repeat&&state.mode!=='playing')startOrResume();
+  });
+  window.addEventListener('keyup',e=>{const key=e.key.toLowerCase();if(key==='arrowleft'||key==='a')keys.left=false;if(key==='arrowright'||key==='d')keys.right=false;});
+  window.addEventListener('blur',()=>{keys.left=keys.right=false;if(state.mode==='playing')togglePause();});
+  canvas.addEventListener('pointerdown',e=>{if(state.mode!=='playing')return;pointer.active=true;pointer.x=(e.clientX-canvas.getBoundingClientRect().left)/canvas.getBoundingClientRect().width*W;canvas.setPointerCapture?.(e.pointerId);});
+  canvas.addEventListener('pointermove',e=>{if(!pointer.active)return;pointer.x=(e.clientX-canvas.getBoundingClientRect().left)/canvas.getBoundingClientRect().width*W;});
+  canvas.addEventListener('pointerup',()=>{pointer.active=false;});
+  canvas.addEventListener('pointercancel',()=>{pointer.active=false;});
+  function holdButton(id,direction){
+    const el=$(id);
+    el.addEventListener('pointerdown',e=>{e.preventDefault();keys[direction]=true;pointer.active=false;el.setPointerCapture?.(e.pointerId);});
+    for(const ev of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(ev,()=>keys[direction]=false);
+  }
+  holdButton('leftButton','left');holdButton('rightButton','right');
+  $('mobileBlast').addEventListener('click',blast);
+  $('blastButton').addEventListener('click',blast);
+  $('playButton').addEventListener('click',startOrResume);
+  $('pauseButton').addEventListener('click',togglePause);
+  $('muteButton').addEventListener('click',()=>{state.muted=!state.muted;$('muteButton').textContent=state.muted?'♪ SOUND OFF':'♪ SOUND ON';if(!state.muted)sound(530);});
+  refreshHUD();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
